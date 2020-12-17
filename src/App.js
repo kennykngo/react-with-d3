@@ -25,8 +25,8 @@ function App() {
       const yScale = scaleLinear().domain([0, 150]).range([150, 0]);
 
       const colorScale = scaleLinear()
-        .domain([75, 150])
-        .range(["green", "red"])
+        .domain([75, 100, 150])
+        .range(["green", "orange", "red"])
         .clamp(true);
 
       const xAxis = axisBottom(xScale).ticks(data.length);
@@ -36,17 +36,18 @@ function App() {
       svg.select(".y-axis").style("transform", "translateX(300px)").call(yAxis);
 
       // bandwidth = width of a band
+      // placing the fill AFTER transition animates the color change
       svg
         .selectAll(".bar")
         .data(data)
         .join("rect")
         .attr("class", "bar")
-        .attr("fill", colorScale)
         .style("transform", "scale(1, -1)")
         .attr("x", (value, index) => xScale(index))
         .attr("y", -150)
         .attr("width", xScale.bandwidth())
         .transition()
+        .attr("fill", colorScale)
         .attr("height", (value) => 150 - yScale(value));
     },
     // empty dependency array results in the useEffect being only called once (once the DOM elements have been rendered)
