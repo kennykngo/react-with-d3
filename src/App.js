@@ -24,7 +24,10 @@ function App() {
       // svg is 150 px high
       const yScale = scaleLinear().domain([0, 150]).range([150, 0]);
 
-      const colorScale = scaleLinear().domain([0, 150]).range(["green", "red"]);
+      const colorScale = scaleLinear()
+        .domain([75, 150])
+        .range(["green", "red"])
+        .clamp(true);
 
       const xAxis = axisBottom(xScale).ticks(data.length);
       svg.select(".x-axis").style("transform", "translateY(150px)").call(xAxis);
