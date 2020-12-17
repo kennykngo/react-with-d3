@@ -24,6 +24,8 @@ function App() {
       // svg is 150 px high
       const yScale = scaleLinear().domain([0, 150]).range([150, 0]);
 
+      const colorScale = scaleLinear().domain([0, 150]).range(["green", "red"]);
+
       const xAxis = axisBottom(xScale).ticks(data.length);
       svg.select(".x-axis").style("transform", "translateY(150px)").call(xAxis);
 
@@ -36,8 +38,10 @@ function App() {
         .data(data)
         .join("rect")
         .attr("class", "bar")
+        .attr("fill", colorScale)
+        .style("transform", "scale(1, -1)")
         .attr("x", (value, index) => xScale(index))
-        .attr("y", yScale)
+        .attr("y", -150)
         .attr("width", xScale.bandwidth())
         .transition()
         .attr("height", (value) => 150 - yScale(value));
@@ -52,12 +56,12 @@ function App() {
         <g className="x-axis" />
         <g className="y-axis" />
       </svg>
-      {/* <button onClick={() => setData(data.map((val) => val + 5))}>
+      <button onClick={() => setData(data.map((val) => val + 5))}>
         Update Data
       </button>
       <button onClick={() => setData(data.filter((val) => val <= 35))}>
         Filter Data
-      </button> */}
+      </button>
     </>
   );
 }
