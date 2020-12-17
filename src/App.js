@@ -1,4 +1,11 @@
-import { curveCardinal, line, select } from "d3";
+import {
+  axisBottom,
+  axisRight,
+  curveCardinal,
+  line,
+  scaleLinear,
+  select,
+} from "d3";
 import React, { useEffect, useRef, useState } from "react";
 
 import "./App.css";
@@ -13,39 +20,33 @@ function App() {
   useEffect(
     () => {
       const svg = select(svgRef.current);
+      // domain is basically the input values
+      // scaling the value and making it linear to range over 300 px long
+      // which is how long the svg is
+      const xScale = scaleLinear()
+        .domain([0, data.length - 1])
+        .range([0, 300]);
+
+      // svg is 150 px high
+      const yScale = scaleLinear().domain([0, 75]).range([150, 0]);
+
+      const xAxis = axisBottom(xScale);
+      svg.select(".x-axis").style("transform", "translateY(150px)").call(xAxis);
+
+      const yAxis = axisRight(yScale);
+      svg.select(".y-axis").style("transform", "translateX(300px)").call(yAxis);
+
       const myLine = line()
-        .x((value, index) => index * 50)
-        .y((value) => 150 - value)
+        .x((value, index) => xScale(index))
+        .y(yScale)
         .curve(curveCardinal);
-      // selects all of the existing circle elements AND synchronize them with the data
-      // enter new data represented in SVG
-      // join creates the new circles
-      // enter -> enters the circles
-      // update -> updates the circles with a class of updated
-      ////// If there's a pre-existing circle element, the update will reuse the circle as part of d3 and update with an updated class
-      // If 6 circles exist, will remove one and re-use 6 since there are 5 elements in the data array
-      // svg
-      //   .selectAll("circle")
-      //   .data(data)
-      //   .join(
-      //     // works even if you take out all callback functions and replace with just "circle"
-      //     // join method will create and append the circles for you
-      //     (enter) => enter.append("circle"),
-      //     (update) => update.attr("class", "updated"),
-      //     // exit callback is default
-      //     (exit) => exit.remove()
-      //   )
-      //   // r is radius
-      //   // by placing it at the end after join, the styles are applied to both enter and update
-      //   .attr("r", (value) => value)
-      //   .attr("cx", (value) => value * 2)
-      //   .attr("cy", (value) => value * 2)
-      //   .attr("stroke", "red");
+
       svg
-        .selectAll("path")
+        .selectAll(".line")
         .data([data])
         .join("path")
-        .attr("d", (value) => myLine(value))
+        .attr("class", "line")
+        .attr("d", myLine)
         .attr("fill", "none")
         .attr("stroke", "blue");
     },
@@ -55,13 +56,16 @@ function App() {
 
   return (
     <>
-      <svg ref={svgRef}></svg>
-      <button onClick={() => setData(data.map((val) => val + 5))}>
+      <svg ref={svgRef}>
+        <g className="x-axis" />
+        <g className="y-axis" />
+      </svg>
+      {/* <button onClick={() => setData(data.map((val) => val + 5))}>
         Update Data
       </button>
       <button onClick={() => setData(data.filter((val) => val <= 35))}>
         Filter Data
-      </button>
+      </button> */}
     </>
   );
 }
