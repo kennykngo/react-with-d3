@@ -46,6 +46,20 @@ function App() {
         .attr("x", (value, index) => xScale(index))
         .attr("y", -150)
         .attr("width", xScale.bandwidth())
+        .on("mouseenter", function (event, value) {
+          const index = svg.selectAll(".bar").nodes().indexOf(this);
+          svg
+            .selectAll(".tooltip")
+            .data([value])
+            .join("text")
+            .attr("class", "tooltip")
+            .text(value)
+            .attr("x", xScale(index))
+            .attr("y", yScale(value) - 8)
+            .attr("opacity", 1);
+          console.log([value]);
+        })
+        .on("mouseleave", () => svg.select(".tooltip").remove())
         .transition()
         .attr("fill", colorScale)
         .attr("height", (value) => 150 - yScale(value));
@@ -65,6 +79,11 @@ function App() {
       </button>
       <button onClick={() => setData(data.filter((val) => val <= 35))}>
         Filter Data
+      </button>
+      <button
+        onClick={() => setData([...data, Math.floor(Math.random() * 100)])}
+      >
+        Add Data
       </button>
     </>
   );
