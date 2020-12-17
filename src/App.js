@@ -1,11 +1,4 @@
-import {
-  axisBottom,
-  axisRight,
-  curveCardinal,
-  line,
-  scaleLinear,
-  select,
-} from "d3";
+import { axisBottom, axisRight, scaleBand, scaleLinear, select } from "d3";
 import React, { useEffect, useRef, useState } from "react";
 
 import "./App.css";
@@ -23,34 +16,31 @@ function App() {
       // domain is basically the input values
       // scaling the value and making it linear to range over 300 px long
       // which is how long the svg is
-      const xScale = scaleLinear()
-        .domain([0, data.length - 1])
-        .range([0, 300]);
+      const xScale = scaleBand()
+        .domain(data.map((value, index) => index))
+        .range([0, 300])
+        .padding(0.5);
 
       // svg is 150 px high
-      const yScale = scaleLinear().domain([0, 75]).range([150, 0]);
+      const yScale = scaleLinear().domain([0, 150]).range([150, 0]);
 
-      const xAxis = axisBottom(xScale)
-        .ticks(data.length)
-        .tickFormat((index) => index + 1);
+      const xAxis = axisBottom(xScale).ticks(data.length);
       svg.select(".x-axis").style("transform", "translateY(150px)").call(xAxis);
 
       const yAxis = axisRight(yScale);
       svg.select(".y-axis").style("transform", "translateX(300px)").call(yAxis);
 
-      const myLine = line()
-        .x((value, index) => xScale(index))
-        .y(yScale)
-        .curve(curveCardinal);
-
+      // bandwidth = width of a band
       svg
-        .selectAll(".line")
-        .data([data])
-        .join("path")
-        .attr("class", "line")
-        .attr("d", myLine)
-        .attr("fill", "none")
-        .attr("stroke", "blue");
+        .selectAll(".bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", (value, index) => xScale(index))
+        .attr("y", yScale)
+        .attr("width", xScale.bandwidth())
+        .transition()
+        .attr("height", (value) => 150 - yScale(value));
     },
     // empty dependency array results in the useEffect being only called once (once the DOM elements have been rendered)
     [data]
